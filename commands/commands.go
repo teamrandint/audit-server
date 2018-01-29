@@ -75,7 +75,68 @@ func (u *UserCommand) String() string {
 	return string(u.Byte())
 }
 
+// Byte returns byte array of usercommand
 func (u *UserCommand) Byte() []byte {
+	output, err := xml.MarshalIndent(u, "  ", "    ")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	return output
+}
+
+// String returns a string representation of QuoteServer
+func (u *QuoteServer) String() string {
+	return string(u.Byte())
+}
+
+// Byte returns byte array of QuoteServer
+func (u *QuoteServer) Byte() []byte {
+	output, err := xml.MarshalIndent(u, "  ", "    ")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	return output
+}
+
+// String returns a string representation of AccountTransaction
+func (u *AccountTransaction) String() string {
+	return string(u.Byte())
+}
+
+// Byte returns byte array of AccountTransaction
+func (u *AccountTransaction) Byte() []byte {
+	output, err := xml.MarshalIndent(u, "  ", "    ")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	return output
+}
+
+// String returns a string representation of SystemEvent
+func (u *SystemEvent) String() string {
+	return string(u.Byte())
+}
+
+// Byte returns byte array of SystemEvent
+func (u *SystemEvent) Byte() []byte {
+	output, err := xml.MarshalIndent(u, "  ", "    ")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	return output
+}
+
+// String returns a string representation of ErrorEvent
+func (u *ErrorEvent) String() string {
+	return string(u.Byte())
+}
+
+// Byte returns byte array of ErrorEvent
+func (u *ErrorEvent) Byte() []byte {
 	output, err := xml.MarshalIndent(u, "  ", "    ")
 	if err != nil {
 		fmt.Printf("error: %v\n", err)

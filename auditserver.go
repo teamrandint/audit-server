@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"seng468/auditserver/commands"
+	"seng468/auditserver/log"
 	"time"
 )
 
@@ -12,19 +14,7 @@ func userCommandHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
 
-	type userCommand struct {
-		XMLName        xml.Name `xml:"userCommand"`
-		Timestamp      int64    `xml:"timestamp"`
-		Server         string   `xml:"server"`
-		TransactionNum string   `xml:"transactionNum"`
-		Command        string   `xml:"command"`
-		Username       string   `xml:"username,omitempty"`
-		StockSymbol    string   `xml:"stockSymbol,omitempty"`
-		Filename       string   `xml:"filename,omitempty"`
-		Funds          string   `xml:"funds,omitempty"`
-	}
-
-	v := &userCommand{
+	v := &commands.UserCommand{
 		Timestamp:      timestamp,
 		Server:         query.Get("server"),
 		TransactionNum: query.Get("transactionNum"),
@@ -46,19 +36,7 @@ func quoteServerHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
 
-	type quoteServer struct {
-		XMLName         xml.Name `xml:"quoteServer"`
-		Timestamp       int64    `xml:"timestamp"`
-		Server          string   `xml:"server"`
-		TransactionNum  string   `xml:"transactionNum"`
-		Price           string   `xml:"price"`
-		StockSymbol     string   `xml:"stockSymbol"`
-		Username        string   `xml:"username"`
-		QuoteServerTime string   `xml:"quoteServerTime"`
-		CryptoKey       string   `xml:"cryptoKey"`
-	}
-
-	v := &quoteServer{
+	v := &commands.QuoteServer{
 		Timestamp:       timestamp,
 		Server:          query.Get("server"),
 		TransactionNum:  query.Get("transactionNum"),
@@ -80,17 +58,7 @@ func accountTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
 
-	type accountTransaction struct {
-		XMLName        xml.Name `xml:"accountTransaction"`
-		Timestamp      int64    `xml:"timestamp"`
-		Server         string   `xml:"server"`
-		TransactionNum string   `xml:"transactionNum"`
-		Action         string   `xml:"action"`
-		Username       string   `xml:"username,omitempty"`
-		Funds          string   `xml:"funds,omitempty"`
-	}
-
-	v := &accountTransaction{
+	v := &commands.AccountTransaction{
 		Timestamp:      timestamp,
 		Server:         query.Get("server"),
 		TransactionNum: query.Get("transactionNum"),
@@ -110,19 +78,7 @@ func systemEventHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
 
-	type systemEvent struct {
-		XMLName        xml.Name `xml:"systemEvent"`
-		Timestamp      int64    `xml:"timestamp"`
-		Server         string   `xml:"server"`
-		TransactionNum string   `xml:"transactionNum"`
-		Command        string   `xml:"command"`
-		Username       string   `xml:"username,omitempty"`
-		StockSymbol    string   `xml:"stockSymbol,omitempty"`
-		Filename       string   `xml:"filename,omitempty"`
-		Funds          string   `xml:"funds,omitempty"`
-	}
-
-	v := &systemEvent{
+	v := &commands.SystemEvent{
 		Timestamp:      timestamp,
 		Server:         query.Get("server"),
 		TransactionNum: query.Get("transactionNum"),
@@ -144,20 +100,7 @@ func errorEventHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
 
-	type errorEvent struct {
-		XMLName        xml.Name `xml:"errorEvent"`
-		Timestamp      int64    `xml:"timestamp"`
-		Server         string   `xml:"server"`
-		TransactionNum string   `xml:"transactionNum"`
-		Command        string   `xml:"command"`
-		Username       string   `xml:"username,omitempty"`
-		StockSymbol    string   `xml:"stockSymbol,omitempty"`
-		Filename       string   `xml:"filename,omitempty"`
-		Funds          string   `xml:"funds,omitempty"`
-		ErrorMessage   string   `xml:"errorMessage,omitempty"`
-	}
-
-	v := &errorEvent{
+	v := &commands.ErrorEvent{
 		Timestamp:      timestamp,
 		Server:         query.Get("server"),
 		TransactionNum: query.Get("transactionNum"),
@@ -178,29 +121,18 @@ func errorEventHandler(w http.ResponseWriter, r *http.Request) {
 
 func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-
 	dumpfile := query.Get("filename")
 	userLog := query.Get("username")
-
-	outlog := ""
-	if len(userLog) != 0 {
-		outlog = selectLogByUser(userLog)
-	} else {
-		outlog = "full log"
-	}
 
 	file, err := os.Create(dumpfile)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
 
-	fmt.Printf("Dumping log to %v", dumpfile)
-	file.Write([]byte(outlog))
+	fmt.Printf("Dumping log to %v, with user set as %v",
+		dumpfile, userLog)
+	log.Write(file)
 	file.Close()
-}
-
-func selectLogByUser(username string) string {
-	return "user events"
 }
 
 func writeEncodedStruct(v, w http.ResponseWriter) {
@@ -216,6 +148,9 @@ func makeTimestamp() int64 {
 }
 
 func main() {
+	log := log.Log{}
+	fmt.Print(log)
+
 	http.HandleFunc("/userCommand", userCommandHandler)
 	http.HandleFunc("/quoteServer", quoteServerHandler)
 	http.HandleFunc("/accountTransaction", accountTransactionHandler)

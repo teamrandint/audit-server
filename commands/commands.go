@@ -1,10 +1,14 @@
 package commands
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+)
 
 // Command contains types of commands user can run
 type Command interface {
 	String() string
+	Byte() []byte
 }
 
 type UserCommand struct {
@@ -17,11 +21,6 @@ type UserCommand struct {
 	StockSymbol    string   `xml:"stockSymbol,omitempty"`
 	Filename       string   `xml:"filename,omitempty"`
 	Funds          string   `xml:"funds,omitempty"`
-}
-
-// String returns a string representation of userCommand
-func String(u *UserCommand) string {
-	return "aa"
 }
 
 type QuoteServer struct {
@@ -69,4 +68,18 @@ type ErrorEvent struct {
 	Filename       string   `xml:"filename,omitempty"`
 	Funds          string   `xml:"funds,omitempty"`
 	ErrorMessage   string   `xml:"errorMessage,omitempty"`
+}
+
+// String returns a string representation of userCommand
+func (u *UserCommand) String() string {
+	return string(u.Byte())
+}
+
+func (u *UserCommand) Byte() []byte {
+	output, err := xml.MarshalIndent(u, "  ", "    ")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	return output
 }

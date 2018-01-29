@@ -25,11 +25,8 @@ func userCommandHandler(w http.ResponseWriter, r *http.Request) {
 		Funds:          query.Get("funds"),
 	}
 
-	enc := xml.NewEncoder(w)
-	enc.Indent("  ", "    ")
-	if err := enc.Encode(v); err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
+	fmt.Printf("%v\n", v)
+	w.Write(v.Byte())
 }
 
 func quoteServerHandler(w http.ResponseWriter, r *http.Request) {

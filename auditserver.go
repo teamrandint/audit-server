@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -175,6 +176,33 @@ func errorEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	dumpfile := query.Get("filename")
+	userLog := query.Get("username")
+
+	outlog := ""
+	if len(userLog) != 0 {
+		outlog = selectLogByUser(userLog)
+	} else {
+		outlog = "full log"
+	}
+
+	file, err := os.Create(dumpfile)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	fmt.Printf("Dumping log to %v", dumpfile)
+	file.Write([]byte(outlog))
+	file.Close()
+}
+
+func selectLogByUser(username string) string {
+	return "user events"
+}
+
 func writeEncodedStruct(v, w http.ResponseWriter) {
 	enc := xml.NewEncoder(w)
 	enc.Indent("  ", "    ")
@@ -193,6 +221,7 @@ func main() {
 	http.HandleFunc("/accountTransaction", accountTransactionHandler)
 	http.HandleFunc("/systemEvent", systemEventHandler)
 	http.HandleFunc("/errorEvent", errorEventHandler)
+	http.HandleFunc("/dumpLog", dumpLogHandler)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}

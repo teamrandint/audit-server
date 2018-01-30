@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/xml"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,6 +12,7 @@ import (
 func userCommandHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
+	fmt.Printf("Received userCommand at %v\n", timestamp)
 
 	v := &commands.UserCommand{
 		Timestamp:      timestamp,
@@ -25,13 +25,14 @@ func userCommandHandler(w http.ResponseWriter, r *http.Request) {
 		Funds:          query.Get("funds"),
 	}
 
-	fmt.Printf("%v\n", v)
+	eventlog.Insert(v)
 	w.Write(v.Byte())
 }
 
 func quoteServerHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
+	fmt.Printf("Received quoteServer at %v\n", timestamp)
 
 	v := &commands.QuoteServer{
 		Timestamp:       timestamp,
@@ -44,16 +45,14 @@ func quoteServerHandler(w http.ResponseWriter, r *http.Request) {
 		CryptoKey:       query.Get("cryptoKey"),
 	}
 
-	enc := xml.NewEncoder(w)
-	enc.Indent("  ", "    ")
-	if err := enc.Encode(v); err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
+	eventlog.Insert(v)
+	w.Write(v.Byte())
 }
 
 func accountTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
+	fmt.Printf("Received accountTransaction at %v\n", timestamp)
 
 	v := &commands.AccountTransaction{
 		Timestamp:      timestamp,
@@ -64,16 +63,15 @@ func accountTransactionHandler(w http.ResponseWriter, r *http.Request) {
 		Funds:          query.Get("price"),
 	}
 
-	enc := xml.NewEncoder(w)
-	enc.Indent("  ", "    ")
-	if err := enc.Encode(v); err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
+	eventlog.Insert(v)
+	fmt.Print(eventlog)
+	w.Write(v.Byte())
 }
 
 func systemEventHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
+	fmt.Printf("Received systemEvent at %v\n", timestamp)
 
 	v := &commands.SystemEvent{
 		Timestamp:      timestamp,
@@ -86,16 +84,14 @@ func systemEventHandler(w http.ResponseWriter, r *http.Request) {
 		Funds:          query.Get("funds"),
 	}
 
-	enc := xml.NewEncoder(w)
-	enc.Indent("  ", "    ")
-	if err := enc.Encode(v); err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
+	eventlog.Insert(v)
+	w.Write(v.Byte())
 }
 
 func errorEventHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := makeTimestamp()
 	query := r.URL.Query()
+	fmt.Printf("Received errorEvent at %v\n", timestamp)
 
 	v := &commands.ErrorEvent{
 		Timestamp:      timestamp,
@@ -109,11 +105,8 @@ func errorEventHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorMessage:   query.Get("errorMessage"),
 	}
 
-	enc := xml.NewEncoder(w)
-	enc.Indent("  ", "    ")
-	if err := enc.Encode(v); err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
+	eventlog.Insert(v)
+	w.Write(v.Byte())
 }
 
 func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
@@ -128,26 +121,17 @@ func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Dumping log to %v, with user set as %v",
 		dumpfile, userLog)
-	log.Write(file)
+	eventlog.Write(file)
 	file.Close()
-}
-
-func writeEncodedStruct(v, w http.ResponseWriter) {
-	enc := xml.NewEncoder(w)
-	enc.Indent("  ", "    ")
-	if err := enc.Encode(v); err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
 }
 
 func makeTimestamp() int64 {
 	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 }
 
-func main() {
-	log := log.Log{}
-	fmt.Print(log)
+var eventlog = log.Log{}
 
+func main() {
 	http.HandleFunc("/userCommand", userCommandHandler)
 	http.HandleFunc("/quoteServer", quoteServerHandler)
 	http.HandleFunc("/accountTransaction", accountTransactionHandler)

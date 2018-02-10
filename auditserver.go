@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -113,10 +114,14 @@ func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	dumpfile := query.Get("filename")
 	userLog := query.Get("username")
+	dumpfileB := string(bytes.Trim([]byte(dumpfile), "\x00"))
+	if dumpfileB != "./test.log" {
+		panic(fmt.Sprintf("Names not equal %q ./test.log\n len=%v", dumpfile, len(dumpfile)))
+	}
 
-	file, err := os.Create(dumpfile)
+	file, err := os.Create(string(dumpfileB))
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		fmt.Printf("error: %v %v\n", err, file)
 	}
 
 	fmt.Printf("Dumping log to %v, with user set as %v",

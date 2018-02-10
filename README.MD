@@ -36,7 +36,7 @@ Supported Params are:
 - stockSymbol
 - username
 - quoteServerTime
-- cryptoKey
+- cryptokey
 
 ### /accountTransaction
 

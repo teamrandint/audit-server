@@ -32,7 +32,7 @@ type QuoteServer struct {
 	StockSymbol     string   `xml:"stockSymbol"`
 	Username        string   `xml:"username"`
 	QuoteServerTime string   `xml:"quoteServerTime"`
-	CryptoKey       string   `xml:"cryptoKey"`
+	Cryptokey       string   `xml:"cryptokey"`
 }
 
 type AccountTransaction struct {

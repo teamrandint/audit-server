@@ -27,7 +27,7 @@ func userCommandHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventlog.Insert(v)
-	w.Write(v.Byte())
+	w.Write([]byte("OK"))
 }
 
 func quoteServerHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,11 +43,11 @@ func quoteServerHandler(w http.ResponseWriter, r *http.Request) {
 		StockSymbol:     query.Get("stockSymbol"),
 		Price:           query.Get("price"),
 		QuoteServerTime: query.Get("quoteServerTime"),
-		CryptoKey:       query.Get("cryptoKey"),
+		Cryptokey:       query.Get("cryptokey"),
 	}
 
 	eventlog.Insert(v)
-	w.Write(v.Byte())
+	w.Write([]byte("OK"))
 }
 
 func accountTransactionHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,14 +59,13 @@ func accountTransactionHandler(w http.ResponseWriter, r *http.Request) {
 		Timestamp:      timestamp,
 		Server:         query.Get("server"),
 		TransactionNum: query.Get("transactionNum"),
-		Action:         query.Get("username"),
-		Username:       query.Get("stockSymbol"),
-		Funds:          query.Get("price"),
+		Action:         query.Get("action"),
+		Username:       query.Get("username"),
+		Funds:          query.Get("funds"),
 	}
 
 	eventlog.Insert(v)
-	fmt.Print(eventlog)
-	w.Write(v.Byte())
+	w.Write([]byte("OK"))
 }
 
 func systemEventHandler(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +85,7 @@ func systemEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventlog.Insert(v)
-	w.Write(v.Byte())
+	w.Write([]byte("OK"))
 }
 
 func errorEventHandler(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +106,7 @@ func errorEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventlog.Insert(v)
-	w.Write(v.Byte())
+	w.Write([]byte("OK"))
 }
 
 func dumpLogHandler(w http.ResponseWriter, r *http.Request) {

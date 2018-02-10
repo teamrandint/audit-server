@@ -115,9 +115,9 @@ func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
 	dumpfile := query.Get("filename")
 	userLog := query.Get("username")
 	dumpfileB := string(bytes.Trim([]byte(dumpfile), "\x00"))
-	if dumpfileB != "./test.log" {
-		panic(fmt.Sprintf("Names not equal %q ./test.log\n len=%v", dumpfile, len(dumpfile)))
-	}
+	//if dumpfileB != "./test.log" {
+	//	panic(fmt.Sprintf("Names not equal %q ./test.log\n len=%v", dumpfile, len(dumpfile)))
+	//}
 
 	file, err := os.Create(string(dumpfileB))
 	if err != nil {
@@ -125,7 +125,7 @@ func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("Dumping log to %v, with user set as %v",
-		dumpfile, userLog)
+		dumpfileB, userLog)
 	eventlog.Write(file)
 	file.Close()
 }

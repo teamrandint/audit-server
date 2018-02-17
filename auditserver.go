@@ -7,6 +7,7 @@ import (
 	"os"
 	"seng468/auditserver/commands"
 	"seng468/auditserver/log"
+	"sync"
 	"time"
 )
 
@@ -25,7 +26,8 @@ func userCommandHandler(w http.ResponseWriter, r *http.Request) {
 		Filename:       query.Get("filename"),
 		Funds:          query.Get("funds"),
 	}
-
+	mutex.Lock()
+	defer mutex.Unlock()
 	eventlog.Insert(v)
 	w.Write([]byte("OK"))
 }
@@ -45,7 +47,8 @@ func quoteServerHandler(w http.ResponseWriter, r *http.Request) {
 		QuoteServerTime: query.Get("quoteServerTime"),
 		Cryptokey:       query.Get("cryptokey"),
 	}
-
+	mutex.Lock()
+	defer mutex.Unlock()
 	eventlog.Insert(v)
 	w.Write([]byte("OK"))
 }
@@ -63,7 +66,8 @@ func accountTransactionHandler(w http.ResponseWriter, r *http.Request) {
 		Username:       query.Get("username"),
 		Funds:          query.Get("funds"),
 	}
-
+	mutex.Lock()
+	defer mutex.Unlock()
 	eventlog.Insert(v)
 	w.Write([]byte("OK"))
 }
@@ -83,7 +87,8 @@ func systemEventHandler(w http.ResponseWriter, r *http.Request) {
 		Filename:       query.Get("filename"),
 		Funds:          query.Get("funds"),
 	}
-
+	mutex.Lock()
+	defer mutex.Unlock()
 	eventlog.Insert(v)
 	w.Write([]byte("OK"))
 }
@@ -104,7 +109,8 @@ func errorEventHandler(w http.ResponseWriter, r *http.Request) {
 		Funds:          query.Get("funds"),
 		ErrorMessage:   query.Get("errorMessage"),
 	}
-
+	mutex.Lock()
+	defer mutex.Unlock()
 	eventlog.Insert(v)
 	w.Write([]byte("OK"))
 }
@@ -122,9 +128,10 @@ func dumpLogHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("error: %v %v\n", err, file)
 	}
+	fmt.Printf("Dumping log to %v, with user set as %v", dumpfileB, userLog)
 
-	fmt.Printf("Dumping log to %v, with user set as %v",
-		dumpfileB, userLog)
+	mutex.Lock()
+	defer mutex.Unlock()
 	eventlog.Write(file)
 	file.Close()
 }
@@ -134,6 +141,7 @@ func makeTimestamp() int64 {
 }
 
 var eventlog = log.Log{}
+var mutex sync.Mutex
 
 func main() {
 	http.HandleFunc("/userCommand", userCommandHandler)

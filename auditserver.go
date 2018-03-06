@@ -150,7 +150,7 @@ func main() {
 	http.HandleFunc("/systemEvent", systemEventHandler)
 	http.HandleFunc("/errorEvent", errorEventHandler)
 	http.HandleFunc("/dumpLog", dumpLogHandler)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":44455", nil); err != nil {
 		panic(err)
 	}
 }

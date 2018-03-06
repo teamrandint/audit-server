@@ -7,4 +7,5 @@ RUN cd /go/src/seng468/auditserver && go build -o auditserve
 FROM alpine
 WORKDIR /app
 COPY --from=build-env /go/src/seng468/auditserver/auditserve /app/
-ENTRYPOINT ./auditserve
+EXPOSE 44455-44459
+ENTRYPOINT ./auditserve 

@@ -150,7 +150,9 @@ func main() {
 	http.HandleFunc("/systemEvent", systemEventHandler)
 	http.HandleFunc("/errorEvent", errorEventHandler)
 	http.HandleFunc("/dumpLog", dumpLogHandler)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+
+	fmt.Printf("Audit server listening on %s:%s\n", os.Getenv("auditaddr"), os.Getenv("auditport"))
+	if err := http.ListenAndServe(":"+os.Getenv("auditport"), nil); err != nil {
 		panic(err)
 	}
 }
